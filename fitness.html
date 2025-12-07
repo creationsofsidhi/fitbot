@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitLife Assistant - Fitness Chatbot</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .chat-container {
+      background: #fff;
+      width: 400px;
+      max-height: 90vh;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: #007b5e;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #f5f5f5;
+    }
+
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .bot {
+      background: #e1f5e1;
+      align-self: flex-start;
+    }
+
+    .user {
+      background: #d1e7ff;
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    .input-area {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      outline: none;
+      font-size: 15px;
+    }
+
+    button {
+      background: #007b5e;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #009e7e;
+    }
+
+    .result {
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">🏋️‍♀️ FitLife Assistant</div>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Type your answer..." autocomplete="off">
+      <button onclick="nextQuestion()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+
+    const questions = [
+      "Hi there! 👋 What's your name?",
+      "Nice! How old are you?",
+      "Great. What's your height (in cm)?",
+      "And your weight (in kg)?",
+      "What’s your gender? (Male/Female)",
+      "Do you prefer a Vegetarian or Non-Vegetarian diet?",
+      "How often do you exercise? (Regular/Alternate days)"
+    ];
+
+    const userData = {};
+    let questionIndex = 0;
+
+    function addMessage(message, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.textContent = message;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function nextQuestion() {
+      const input = userInput.value.trim();
+      if (!input) return;
+
+      addMessage(input, "user");
+      userInput.value = "";
+
+      switch (questionIndex) {
+        case 0: userData.name = input; break;
+        case 1: userData.age = parseInt(input); break;
+        case 2: userData.height = parseFloat(input); break;
+        case 3: userData.weight = parseFloat(input); break;
+        case 4: userData.gender = input; break;
+        case 5: userData.diet = input; break;
+        case 6: userData.exercise = input; break;
+      }
+
+      questionIndex++;
+
+      if (questionIndex < questions.length) {
+        setTimeout(() => addMessage(questions[questionIndex], "bot"), 500);
+      } else {
+        setTimeout(generateReport, 800);
+      }
+    }
+
+    function calculateBMI(weight, height) {
+      let h = height / 100;
+      return (weight / (h * h)).toFixed(2);
+    }
+
+    function bmiCategory(bmi) {
+      if (bmi < 18.5) return "Underweight";
+      else if (bmi < 24.9) return "Normal";
+      else if (bmi < 29.9) return "Overweight";
+      else return "Obese";
+    }
+
+    function calorieNeeds(gender, weight, height, age, activity) {
+      let bmr;
+      if (gender.toLowerCase() === "male") {
+        bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+      } else {
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+      }
+      return (activity.toLowerCase().includes("regular")) ? (bmr * 1.55).toFixed(0) : (bmr * 1.375).toFixed(0);
+    }
+
+    function generateDiet(dietType) {
+      if (dietType.toLowerCase().includes("veg")) {
+        return [
+          "🥣 Breakfast: Oats with fruits and chia seeds",
+          "🥗 Lunch: Brown rice, dal, and mixed veg curry",
+          "🍎 Snacks: Green tea + handful of nuts",
+          "🍲 Dinner: Paneer salad with soup"
+        ];
+      } else {
+        return [
+          "🍳 Breakfast: Eggs with whole grain toast",
+          "🍛 Lunch: Grilled chicken, brown rice, and veggies",
+          "🥤 Snacks: Greek yogurt + nuts",
+          "🍗 Dinner: Fish or chicken salad with soup"
+        ];
+      }
+    }
+
+    function generateWorkout(freq) {
+      if (freq.toLowerCase().includes("regular")) {
+        return {
+          Mon: "Cardio (Running or Cycling)",
+          Tue: "Upper Body Strength (Pushups, Dumbbells)",
+          Wed: "Core & Abs Workout",
+          Thu: "Lower Body Strength (Squats, Lunges)",
+          Fri: "Yoga or Stretching",
+          Sat: "HIIT Session",
+          Sun: "Rest & Recovery"
+        };
+      } else {
+        return {
+          Mon: "Cardio (Jogging + Skipping)",
+          Wed: "Lower Body Strength",
+          Fri: "Yoga + Core",
+          Sun: "Light Stretching"
+        };
+      }
+    }
+
+    function generateReport() {
+      const { name, age, height, weight, gender, diet, exercise } = userData;
+
+      const bmi = calculateBMI(weight, height);
+      const category = bmiCategory(bmi);
+      const calories = calorieNeeds(gender, weight, height, age, exercise);
+      const dietPlan = generateDiet(diet);
+      const workoutPlan = generateWorkout(exercise);
+
+      let report = `
+        Here's your personalized fitness report, ${name}! 💪\n
+        📏 Age: ${age} | Height: ${height} cm | Weight: ${weight} kg | Gender: ${gender}
+        💪 BMI: ${bmi} (${category})
+        🔥 Daily Calorie Need: ${calories} kcal
+
+        🍎 Diet Plan:
+        ${dietPlan.join("\n")}
+
+        📅 Workout Plan:
+        ${Object.entries(workoutPlan).map(([day, plan]) => `${day}: ${plan}`).join("\n")}
+
+        💡 Tips:
+      `;
+
+      if (category === "Underweight") report += "\n- Eat calorie-dense foods & lift weights.";
+      else if (category === "Normal") report += "\n- Maintain your lifestyle & stay active.";
+      else if (category === "Overweight") report += "\n- Include more cardio & manage calories.";
+      else report += "\n- Consult a professional for personalized guidance.";
+
+      report += "\n💧 Stay hydrated & get 7–8 hours of sleep daily!";
+
+      addMessage(report, "bot");
+    }
+
+    // Start chat
+    addMessage(questions[0], "bot");
+  </script>
+</body>
+</html>
