@@ -27,7 +27,7 @@ The project focuses on:
 
 ## How to Use
 
-1. Open the website [here](https://creationsofsidhi.github.io/fitbot/).
+1. Open the website [here](https://creationsofsidhi.github.io/fitbot/)
 2. Navigate through different sections to explore fitness tips, charts, and lifestyle guidance.  
 3. Use the interactive tools to track your own progress and learn practical health habits.  
 
